@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from . import _compat  # noqa: F401  (lzma stub + headless matplotlib)
 
-__version__ = "2.2.0"
+__version__ = "2.3.0"
 
 # --- I/O -------------------------------------------------------------------
 from .io import (
@@ -82,6 +82,11 @@ from .calib import (
     rotation_shift,
     track_shifts,
     tie_to_header,
+    fit_instrumental_profile,
+    instrumental_profile_model,
+    load_fts_atlas,
+    remove_stray_light,
+    stray_light_veil,
 )
 
 # --- Analysis --------------------------------------------------------------
@@ -135,6 +140,8 @@ __all__ = [
     "activity_mask", "wing_channels", "atlas_sensitivity", "atlas_factor_series",
     "planck_inversion", "limb_darkening", "clv_factor", "clv_reference",
     "download_clv_table", "load_clv_table", "mu_map",
+    "fit_instrumental_profile", "instrumental_profile_model", "load_fts_atlas",
+    "remove_stray_light", "stray_light_veil",
     # analysis
     "contrast_profile", "halpha_width_map", "halpha_width_temperature",
     "width_to_temperature", "fe_planck_temperature", "fe_eb_temperature",

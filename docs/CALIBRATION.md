@@ -84,7 +84,40 @@ a small wavelength offset.
 
 ![atlas calibration](../assets/atlas_calibration.png)
 
-## 8. Temperatures: different physics, different method
+## 8. One instrumental profile for both windows, and the stray light
+
+The atlas fit above leaves the Fe I core too shallow, because CHASE spectra
+carry stray light that fills the cores in. Hou et al. (2020), as used for CHASE
+by Hong et al. (2022), fit the disk-centre profile with the atlas convolved
+with a Gaussian plus a **constant** stray-light level α. On CHASE that needs a
+separate answer per window (2023-03-29: 0.105 Å and α = 10.5 % in Fe I, 0.140 Å
+and α = 5.0 % in Hα), although both windows are recorded in the same exposure
+on the same detector. We therefore use **one profile for both windows**, with
+the constant replaced by a broad Gaussian that carries a fraction `f` of the
+light:
+
+    T(λ)·DN = (1 − f)·atlas ⊗ G(w) + f·atlas ⊗ G(W)
+
+With w = 0.100 Å, W = 1.8 Å and f = 14.5 % this fits both windows (0.3 % RMS
+of the continuum in Fe I, 0.6 % in Hα). Fitted freely on the first 2023-03-29
+scan it gives 0.105 Å, 2.4 Å and 11 %, on the same valley of near-equal χ²,
+and the 2024-10-03 scans give the same, so the profile is stable over the
+mission. The stray light is then assumed to be the same over the field of view
+(Hong et al. 2022), taken from the disk-centre profile and removed from every
+pixel:
+
+    I = (I_obs − f·I_dc ⊗ G(W)) / (1 − f)
+
+This removes the broad wings of the profile, the core is not deconvolved.
+Quiet-Sun continuum stays within 1 %, line cores deepen (Hα 22 %, Fe I 8 %),
+and an umbra gets darker at all wavelengths. **Do not use it off the limb**:
+the level is set at disk centre and is too large where the disk is fainter.
+Light scattered from the immediate surroundings of a pixel is not treated.
+
+→ `chase.calib.fit_instrumental_profile`, `chase.calib.remove_stray_light`;
+example: `examples/stray_light.py`.
+
+## 9. Temperatures: different physics, different method
 
 - **Hα → chromosphere via line *width*** (Molnar et al. 2019): Hα forms out of
   LTE, so a Planck inversion is invalid. The half-depth width maps onto an ALMA
@@ -99,12 +132,12 @@ a small wavelength offset.
 → `chase.analysis.halpha_width_temperature`, `chase.analysis.fe_planck_temperature`,
 `fe_eb_temperature`, `fe_voigt_temperature`, `chase.calib.planck_inversion`.
 
-## 9. Save all channels
+## 10. Save all channels
 
 The pipeline saves **all 118 Hα + 46 Fe I channels** (not just a summary slice),
 applying the same spatial warp to the Fe cube as the Hα cube.
 
-## 10. Honest animations
+## 11. Honest animations
 
 Animations offer **frozen `vmin`/`vmax`** (`freeze_clim=True`) so brightness can
 be compared across frames without per-frame autoscaling hiding the flare's rise.

@@ -303,6 +303,43 @@ throughput_trend(["2023-03-29T02:12", "2024-10-03T12:02", "2026-07-04T13:29"],
 
 `psf_stray_light` only constrains the halo outside about 1.03 R, so treat `s_dc` as an order of magnitude. The off-limb level also contains any detector offset.
 
+## Instrumental profile and stray light
+
+One profile for both windows, a Gaussian core plus a broad Gaussian holding a fraction `frac` of the light (Hou et al. 2020 with the constant level replaced by the broad term), then the disk-centre stray light removed from every pixel (Hong et al. 2022). See [CALIBRATION.md §8](CALIBRATION.md).
+
+```python
+import numpy as np
+from chase import extract_disk_center, fit_instrumental_profile, remove_stray_light
+
+ha_dc, wav_ha, _ = extract_disk_center("RSM..._HA.fits", size=51)
+fe_dc, wav_fe, _ = extract_disk_center("RSM..._FE.fits", size=51)
+spec = [ha_dc.mean(axis=(1, 2)), fe_dc.mean(axis=(1, 2))]
+
+# defaults: core 0.100 A, broad term 1.8 A with 14.5 %, both windows at once
+fit = fit_instrumental_profile([wav_ha, wav_fe], spec)
+for w in fit["windows"]:
+    print(w["shift"], w["rms"])               # offset (A) and residual (I/Ic) per window
+
+# free fit (grids), e.g. to check the profile on a new data set
+fit = fit_instrumental_profile([wav_ha, wav_fe], spec,
+                               fwhm=np.arange(0.08, 0.121, 0.005),
+                               broad_fwhm=np.arange(1.0, 3.01, 0.2),
+                               frac=np.arange(0.08, 0.201, 0.01))
+
+# Hou et al. (2020) per window, constant level: broad_fwhm=None, frac is their alpha
+hou_fe = fit_instrumental_profile(wav_fe, spec[1], broad_fwhm=None,
+                                  fwhm=np.arange(0.05, 0.26, 0.005),
+                                  frac=np.arange(0, 0.2, 0.005))
+
+# correction: cube and disk-centre profile in the same units (I/Ic via the transmission)
+w = fit["windows"][1]                                  # Fe I
+T = np.polyval(w["poly"], wav_fe - w["wmean"])
+fe_corr = remove_stray_light(fe_cube * T[:, None, None], wav_fe, w["profile"],
+                             frac=fit["frac"], broad_fwhm=fit["broad_fwhm"])
+```
+
+`fit_instrumental_profile` needs the FTS atlas from ISPy (`pip install 'enchase[atlas]'`) or `atlas_file="fts_disk_center_SI.idlsave"`. Do not apply `remove_stray_light` to off-limb pixels.
+
 ## Backward compatibility
 
 The pre-2.0 flat API still works: `from chase.core import run_pipeline, load_fits_data, find_disk_center, ...`. New code should import from the top level as above.
