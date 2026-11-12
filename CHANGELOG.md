@@ -5,6 +5,34 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+## [2.3.0] — 2026-11-12
+
+### Added
+- **Instrumental profile and stray light** (contributed by Alexander Pietrow): new module `chase.calib.straylight`.
+  `fit_instrumental_profile` fits the disk-centre profile against the FTS atlas
+  with ONE profile for the Hα and Fe I windows, a Gaussian core plus a broad
+  Gaussian that carries a fraction `frac` of the light. This is Hou et al.
+  (2020, RAA 20, 045, Eq. 1), used for CHASE by Hong et al. (2022, A&A 668, A9),
+  with their constant stray-light level replaced by the broad term, since a
+  constant level needs different values in two windows recorded in the same
+  exposure (`broad_fwhm=None` gives their model exactly). Pass several windows
+  as lists to fit them together, single values to hold a parameter fixed,
+  sequences to search a grid. `remove_stray_light` takes the stray light from
+  the disk-centre profile and removes the same amount from every pixel,
+  `(I - frac · I_dc ⊗ G(W)) / (1 - frac)`, following Hong et al. (2022).
+  Defaults `fwhm=0.100 Å`, `broad_fwhm=1.8 Å`, `frac=0.145`. Also
+  `instrumental_profile_model`, `stray_light_veil`, `load_fts_atlas` (ISPy
+  atlas, or `atlas_file=` for an `fts_disk_center*.idlsave`). All exported at
+  the top level. Optional step, not called by `run_pipeline`; nothing else
+  changes (the 2.2.0 tests pass unmodified, 6 new tests in
+  `tests/test_straylight.py`).
+- `examples/stray_light.py`: fit, correction and the sunspot figure of the paper.
+
+### Changed
+- Repository moved from `Majboor/enchase` to `waleedsworld/enchase` (full
+  history, branches and tags kept; old URLs redirect). Project URLs, README,
+  docs and `CITATION.cff` now point to the new location.
+
 ## [2.2.0] — 2026-10-23
 
 Alignment, limb-fit and centre-to-limb options from the Solar Physics referee

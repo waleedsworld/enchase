@@ -1,4 +1,4 @@
-"""Calibration stages: spatial, alignment, wavelength, intensity.
+"""Calibration stages: spatial, alignment, wavelength, intensity, stray light.
 
 Every function here is usable on its own — nothing forces a full pipeline.
 """
@@ -58,6 +58,13 @@ from .intensity import (
     quiet_sun_mask,
     wing_channels,
 )
+from .straylight import (
+    fit_instrumental_profile,
+    instrumental_profile_model,
+    load_fts_atlas,
+    remove_stray_light,
+    stray_light_veil,
+)
 
 __all__ = [
     "derotate",
@@ -110,4 +117,10 @@ __all__ = [
     "integral_scaling",
     "normalize_intensity",
     "planck_inversion",
+    # stray light
+    "fit_instrumental_profile",
+    "instrumental_profile_model",
+    "load_fts_atlas",
+    "remove_stray_light",
+    "stray_light_veil",
 ]

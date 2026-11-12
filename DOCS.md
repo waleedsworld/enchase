@@ -7,7 +7,7 @@ Welcome to the official documentation for the **CHASE Satellite FITS Calibration
 ## 📦 Installation
 
 ```bash
-git clone https://github.com/Majboor/enchase.git
+git clone https://github.com/waleedsworld/enchase.git
 cd enchase
 pip install -r requirements.txt
 ```

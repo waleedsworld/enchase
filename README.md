@@ -2,13 +2,13 @@
 
 Calibration and flare analysis for CHASE/HIS solar spectroscopy. Install one package, point it at data, get aligned cubes, animations, contrast profiles, and temperature maps.
 
-[![tests](https://github.com/Majboor/enchase/actions/workflows/test.yml/badge.svg)](https://github.com/Majboor/enchase/actions/workflows/test.yml)
+[![tests](https://github.com/waleedsworld/enchase/actions/workflows/test.yml/badge.svg)](https://github.com/waleedsworld/enchase/actions/workflows/test.yml)
 [![PyPI](https://img.shields.io/pypi/v/enchase)](https://pypi.org/project/enchase/)
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Majboor/enchase/main/assets/flare.gif" width="760" alt="Stabilised 2-panel animation of the 2023-03-29 X1.2 flare"><br>
+  <img src="https://raw.githubusercontent.com/waleedsworld/enchase/main/assets/flare.gif" width="760" alt="Stabilised 2-panel animation of the 2023-03-29 X1.2 flare"><br>
   <em>The 2023-03-29 X1.2 flare, stabilised by this pipeline. Photosphere left, chromosphere right.</em>
 </p>
 
@@ -196,7 +196,16 @@ psf_stray_light(full_disc_image, p)["s_dc_range"]              # scattered fract
 throughput_trend(dates, ifact_per_date)["throughput_pct_per_yr"]
 ```
 
-The pipeline does not correct stray light. For CHASE it is about 6–10 % of the disc-centre intensity, which makes small dark features (umbrae, filaments) look brighter than they are. The atlas factor changes by about 12 % per year, so fit it for each observation (the pipeline does this by default) rather than reusing one from another date. For Hα-only data use `wing_continuum_frac=0.75`: no Hα channel passes the 0.85 default, and `atlas_calibrate` warns about this.
+Stray light is an optional step that `run_pipeline` does not call. `fit_instrumental_profile` fits one profile to both windows at disk centre (a 0.100 Å Gaussian core plus a 1.8 Å broad term with 14.5 % of the light), and `remove_stray_light` takes that stray light from the disk-centre profile and removes the same amount from every pixel. Do not apply it off the limb, and light scattered from a pixel's immediate surroundings is not treated. Details in [docs/CALIBRATION.md](docs/CALIBRATION.md) §8, example in `examples/stray_light.py`:
+
+```python
+from chase import fit_instrumental_profile, remove_stray_light
+fit = fit_instrumental_profile([wav_ha, wav_fe], [dc_spec_ha, dc_spec_fe])   # both windows, one profile
+fe = fit["windows"][1]                                                        # profile = I/Ic at disk centre
+fe_corr = remove_stray_light(fe_cube_ic, wav_fe, fe["profile"], fit["frac"], fit["broad_fwhm"])
+```
+
+The atlas factor changes by about 12 % per year, so fit it for each observation (the pipeline does this by default) rather than reusing one from another date. For Hα-only data use `wing_continuum_frac=0.75`: no Hα channel passes the 0.85 default, and `atlas_calibrate` warns about this.
 
 ## Prefer clicking to typing?
 
@@ -205,7 +214,7 @@ chase-tui
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Majboor/enchase/main/assets/tui_e2e_walkthrough.gif" width="800" alt="End-to-end chase-tui walkthrough">
+  <img src="https://raw.githubusercontent.com/waleedsworld/enchase/main/assets/tui_e2e_walkthrough.gif" width="800" alt="End-to-end chase-tui walkthrough">
 </p>
 
 Every checkbox is one of the switches above. There is also a one-file config workflow: `chase --config my.toml`, keys mirror the flags ([examples/config.toml](examples/config.toml)).
@@ -222,13 +231,14 @@ CHASE (the Chinese Hα Solar Explorer) scans the full solar disk in Hα (118 wav
 | `chase.calib.spatial` / `.align` | shift-then-crop tracking, optical-flow stabilisation | <img src="assets/diag_optical_flow.png" width="220"> |
 | `chase.calib.wavelength` | per-frame resampling onto a common grid, spectral-drift xcorr | <img src="assets/diag_qs_spectrum.png" width="220"> |
 | `chase.calib.intensity` | quiet-Sun norm, integral scaling, FTS-atlas absolute calibration | <img src="assets/atlas_calibration.png" width="220"> |
+| `chase.calib.straylight` | one instrumental profile for both windows, disk-centre stray-light removal | |
 | `chase.analysis.contrast` | wavelength-vs-time flare contrast | <img src="assets/contrast_profile.png" width="220"> |
 | `chase.analysis.temperature` | Hα width to T (Molnar), Fe I to T (Planck / EB / Voigt) | <img src="assets/double_temp_map_peak.png" width="220"> |
 | `chase.analysis.validation` | residual pointing (arcsec), wavelength scatter (mÅ, km/s), frame-to-frame RMS (%, cgs) | |
 | `chase.analysis.systematics` | stray light from the off-limb profile, throughput trend of the atlas factor | |
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Majboor/enchase/main/assets/temperature.gif" width="720" alt="Double temperature map animation"><br>
+  <img src="https://raw.githubusercontent.com/waleedsworld/enchase/main/assets/temperature.gif" width="720" alt="Double temperature map animation"><br>
   <em>Double temperature map: chromosphere from Hα width (~10⁴ K), photosphere from Fe I Planck inversion (~5100 K).</em>
 </p>
 
@@ -244,7 +254,7 @@ CHASE (the Chinese Hα Solar Explorer) scans the full solar disk in Hα (118 wav
 ## Development
 
 ```bash
-git clone https://github.com/Majboor/enchase.git
+git clone https://github.com/waleedsworld/enchase.git
 cd enchase
 pip install -e '.[all]'
 pytest -q            # 27 tests, synthetic FITS fixtures, no big data needed

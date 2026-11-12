@@ -6,9 +6,9 @@ authors:
   - family-names: "Ajmal"
     given-names: "Waleed"
     orcid: "https://orcid.org/0009-0006-8222-1983"
-repository-code: "https://github.com/Majboor/enchase"
+repository-code: "https://github.com/waleedsworld/enchase"
 url: "https://pypi.org/project/enchase/"
-version: "2.2.0"
+version: "2.3.0"
 license: MIT
 keywords:
   - solar physics

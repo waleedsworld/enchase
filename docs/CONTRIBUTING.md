@@ -3,7 +3,7 @@
 ## Dev setup
 
 ```bash
-git clone https://github.com/Majboor/enchase
+git clone https://github.com/waleedsworld/enchase
 cd enchase
 pip install -e '.[all]'      # core + tui + atlas + dev
 pytest -q                    # 27 tests, all on synthetic FITS fixtures
