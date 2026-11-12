@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "enchase"
-version = "2.2.0"
+version = "2.3.0"
 description = "enCHASE: calibration and analysis pipeline for CHASE/HIS solar spectroscopy (TUI + SDK + CLI)"
 readme = "README.md"
 license = { text = "MIT" }
@@ -43,9 +43,9 @@ chase-tui = "chase.tui:main"
 chase-portal = "chase.portal:main"
 
 [project.urls]
-Homepage = "https://github.com/Majboor/enchase"
-Repository = "https://github.com/Majboor/enchase"
-Changelog = "https://github.com/Majboor/enchase/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/waleedsworld/enchase"
+Repository = "https://github.com/waleedsworld/enchase"
+Changelog = "https://github.com/waleedsworld/enchase/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 include = ["chase*", "enchase*"]
